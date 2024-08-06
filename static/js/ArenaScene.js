@@ -76,16 +76,6 @@ class ArenaScene extends Phaser.Scene {
         gameState.platforms.create(850,425,'platform1').setOrigin(0,0).refreshBody();
         
         
-        scene.add.text(10, 65, `${playerUsername}`, {
-            fontFamily: 'Arial',
-            fontSize: '30px',
-            fontStyle: 'bold',
-            color: '#ffffff', 
-            stroke: '#000000', 
-            strokeThickness: 3 
-        });
-
-        socket.emit("enemyName",playerUsername);
         
         
         gameState.player = this.physics.add.sprite(-100, -100,'default_knight').setDepth(1);
@@ -110,7 +100,57 @@ class ArenaScene extends Phaser.Scene {
         
         gameState.player.setCollideWorldBounds(true);
         
-       
+        // Detect if the device is mobile
+        if (this.sys.game.device.os.android || this.sys.game.device.os.iOS || this.sys.game.device.os.windowsPhone) {
+            gameState.upButton = this.add.sprite(150,420,"arena-mobilebutton").setOrigin(0,0).setScale(1.5).setInteractive();
+            gameState.upButton.setAlpha(0.5);
+            gameState.upButton.on('pointerover', function () {
+                gameState.movingDown = false;
+                gameState.movingUp = true;
+            });
+            gameState.upButton.on('pointerout', function () {
+                gameState.movingUp = false;
+            });
+
+            gameState.downButton = this.add.sprite(150,530,"arena-mobilebutton").setOrigin(0,0).setScale(1.5).setInteractive();
+            gameState.downButton.setAlpha(0.5);
+            gameState.downButton.flipY = true;
+            gameState.downButton.on('pointerover', function () {
+                gameState.movingUp = false;
+                gameState.movingDown = true;
+            });
+            gameState.downButton.on('pointerout', function () {
+                gameState.movingDown = false;
+            });
+
+            gameState.rightButton = this.add.sprite(220,550,"arena-mobilebutton").setOrigin(0,0).setScale(1.5).setInteractive();
+            gameState.rightButton.setAlpha(0.5);
+            gameState.rightButton.flipY = true;
+            gameState.rightButton.angle -= 90;
+            gameState.rightButton.on('pointerover', function () {
+                gameState.movingLeft = false;
+                gameState.movingRight = true;
+            });
+            gameState.rightButton.on('pointerout', function () {
+                gameState.movingRight = false;
+            });
+
+            gameState.leftButton = this.add.sprite(150,480,"arena-mobilebutton").setOrigin(0,0).setScale(1.5).setInteractive();
+            gameState.leftButton.setAlpha(0.5);
+            gameState.leftButton.flipY = true;
+            gameState.leftButton.angle += 90;
+            gameState.leftButton.on('pointerover', function () {
+                gameState.movingRight = false;
+                gameState.movingLeft = true;
+            });
+            gameState.leftButton.on('pointerout', function () {
+                gameState.movingLeft = false;
+            });
+        } 
+
+        
+
+
 
         this.anims.create({
             key: 'idle',
@@ -147,38 +187,74 @@ class ArenaScene extends Phaser.Scene {
         gameState.platformCollider = this.physics.add.overlap(gameState.player, gameState.platforms, checkPlatformOverlap, null, this);
         
         
+        if (!this.sys.game.device.os.android && !this.sys.game.device.os.iOS && !this.sys.game.device.os.windowsPhone){
+            this.input.on('pointerdown', (pointer)=>{
+                if(gameState.playerStats.attackReady == true){
+                    
+                    gameState.playerStats.attackAnimation = true;
+                    gameState.playerStats.attackReady = false;
+                    gameState.player.anims.play('attack',true);
+                    socket.emit("updateAnim","attack");
+                    
+                    
+                    var bullet = scene.physics.add.sprite(gameState.player.x+100,gameState.player.y+70, "40x40");
+                    gameState.bulletCondition(scene, bullet, socket);
+                    
+                    
+                    
+                    scene.time.addEvent({
+                        delay: 500,
+                        callback: ()=>{
+                            gameState.playerStats.attackReady = true;
+                        },
+                        callbackScope: this
+                    });
+                    scene.time.addEvent({
+                        delay: 100,
+                        callback: ()=>{
+                            gameState.playerStats.attackAnimation = false;
+                        },
+                        callbackScope: this
+                    });
+                    
+                }
+            }, this);
+        }else {
+            gameState.attackButton = this.add.sprite(1050,520,"arena-mobileattackbutton").setOrigin(0,0).setScale(1.5).setInteractive();
+            gameState.attackButton.setAlpha(0.5);
+            gameState.attackButton.on('pointerdown', function () {
+                if(gameState.playerStats.attackReady == true && gameState.playerStats.attackReady == true){
+                    
+                    gameState.playerStats.attackAnimation = true;
+                    gameState.playerStats.attackReady = false;
+                    gameState.player.anims.play('attack',true);
+                    socket.emit("updateAnim","attack");
+                    
+                    
+                    var bullet = scene.physics.add.sprite(gameState.player.x+100,gameState.player.y+70, "40x40");
+                    gameState.bulletCondition(scene, bullet, socket);
+                    
+                    
+                    
+                    scene.time.addEvent({
+                        delay: 500,
+                        callback: ()=>{
+                            gameState.playerStats.attackReady = true;
+                        },
+                        callbackScope: scene
+                    });
+                    scene.time.addEvent({
+                        delay: 100,
+                        callback: ()=>{
+                            gameState.playerStats.attackAnimation = false;
+                        },
+                        callbackScope: scene
+                    });
+                    
+                }
+            });
+        }
         
-        this.input.on('pointerdown', (pointer)=>{
-            if(gameState.playerStats.attackReady == true){
-                
-                gameState.playerStats.attackAnimation = true;
-                gameState.playerStats.attackReady = false;
-                gameState.player.anims.play('attack',true);
-                socket.emit("updateAnim","attack");
-                
-                
-                var bullet = scene.physics.add.sprite(gameState.player.x+100,gameState.player.y+70, "40x40");
-                gameState.bulletCondition(scene, bullet, socket);
-                
-                
-                
-                scene.time.addEvent({
-                    delay: 500,
-                    callback: ()=>{
-                        gameState.playerStats.attackReady = true;
-                    },
-                    callbackScope: this
-                });
-                scene.time.addEvent({
-                    delay: 100,
-                    callback: ()=>{
-                        gameState.playerStats.attackAnimation = false;
-                    },
-                    callbackScope: this
-                });
-                
-            }
-        }, this);
         
 
         gameState.createPlayer(scene,800,200);
@@ -188,20 +264,6 @@ class ArenaScene extends Phaser.Scene {
                 gameState.player2.y = Number(y);
             });
     
-            socket.on("enemyName",(name)=>{
-                console.log("received");
-                scene.add.text(1190, 65, `${name}`, {
-                    fontFamily: 'Arial',
-                    fontSize: '30px',
-                    fontStyle: 'bold',
-                    color: '#ffffff', 
-                    stroke: '#000000', 
-                    strokeThickness: 3,
-                    wordWrap: { width: 500, useAdvancedWrap: true },
-                    align: 'right'
-                }).setOrigin(1,0);
-            });
-            
             socket.on("updateAnim",(anim,flip)=>{
                 if(anim=="flip"){
                     gameState.player2.flipX = (flip=="true");
@@ -240,19 +302,18 @@ class ArenaScene extends Phaser.Scene {
                 });
             });
 
-
             gameState.initialized = true;
         }
     }
     update(){
         socket.emit("updateMovement",gameState.player.x,gameState.player.y);
-        if(gameState.keys.D.isDown){
+        if(gameState.keys.D.isDown || gameState.movingRight){
             gameState.player.setVelocityX(500);
             gameState.player.flipX = false;
             socket.emit("updateAnim","flip","false");
             gameState.player.body.setOffset(140,50);
             
-        }else if (gameState.keys.A.isDown){
+        }else if (gameState.keys.A.isDown || gameState.movingLeft){
             gameState.player.setVelocityX(-500);
             gameState.player.flipX = true;
             socket.emit("updateAnim","flip","true");
@@ -262,10 +323,10 @@ class ArenaScene extends Phaser.Scene {
             gameState.player.setVelocityX(0);
         }
         
-        if(gameState.keys.W.isDown && gameState.player.body.touching.down && gameState.player.body.velocity.y == 0){
+        if(gameState.keys.W.isDown && gameState.player.body.touching.down && gameState.player.body.velocity.y == 0 || gameState.movingUp && gameState.player.body.touching.down && gameState.player.body.velocity.y == 0){
             gameState.player.body.velocity.y = -800;
         }
-        if(gameState.keys.S.isDown){
+        if(gameState.keys.S.isDown || gameState.movingDown){
             gameState.player.body.velocity.y += 50;
         }
         
