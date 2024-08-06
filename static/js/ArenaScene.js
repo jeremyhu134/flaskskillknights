@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3000');
+const socket = io('https://skillknightsserver-0ea7833ce71b.herokuapp.com/');
 
 
 class MatchScene extends Phaser.Scene {
