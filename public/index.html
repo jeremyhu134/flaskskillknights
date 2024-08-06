@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="aa">
+    <head>
+        <!--
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="phaser.min.js"></script>
+        <script src="phaser.js"></script>
+        
+        <script src="ArenaScene.js"></script>
+        <script src="menu.js"></script>
+        <script src="game.js"></script>-->
+
+        <script>
+            var playerUsername = "{{current_user.username}}";
+            var playerRating = "{{current_user.rating}}";
+
+        </script>
+        <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='js/phaser.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/phaser.js') }}"></script>
+        
+        <script src="{{ url_for('static', filename='js/ArenaScene.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+        
+        
+        <title>Skill Knights</title>
+        <link rel="icon" href="https://t3.ftcdn.net/jpg/01/54/24/04/360_F_154240489_0j2b2PTwYvWaNejoS1jTPxbtosU9WvJM.jpg">
+        
+        <style>
+            body {
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>      
+        
+    </body>
+</html>

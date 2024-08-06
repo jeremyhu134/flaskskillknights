@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+     <head>
+      <link rel="stylesheet" href="../static/style.css">
+    </head>
+     <body>
+        <div class="navbar">
+            <ul class="navigation">
+                {% if not current_user.is_authenticated%}
+                    <li class="navigation_li"><a class="navigation_a" href="{{url_for('log_in')}}">Log in</a></li>
+                    <li class="navigation_li"><a class="navigation_a" href="{{url_for('sign_up')}}">Sign up</a></li>
+                {% else%}
+
+                {% endif %}
+            </ul>
+        </div>
+
+        {% for message in get_flashed_messages() %}
+            <br><br><br>
+            <h3 class="alert">{{ message }}</h3>
+        {% endfor %}
+
+    {% block content%}
+    {%endblock%}
+    </body>
+</html>
