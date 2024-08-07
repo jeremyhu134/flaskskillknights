@@ -91,6 +91,24 @@ let gameState = {
                         sprite.visible = true;
                     }else{
                         socket.emit("matchLost");
+                        if(playerRating > 0){
+                            playerRating--;
+                        }
+                        fetch('/update_rating', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ username: playerUsername, rating: playerRating})
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data.message);
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+
                         scene.time.addEvent({
                             delay: 3000,
                             callback: ()=>{

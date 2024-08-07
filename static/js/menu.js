@@ -39,6 +39,13 @@ class MenuScene extends Phaser.Scene {
         });
 
 
+        this.load.image('bronzeRankIcon','/static/js/images/bronzeRankIcon.png');
+        this.load.image('silverRankIcon','/static/js/images/silverRankIcon.png');
+        this.load.image('goldRankIcon','/static/js/images/goldRankIcon.png');
+        this.load.image('diamondRankIcon','/static/js/images/diamondRankIcon.png');
+        this.load.image('rubyRankIcon','/static/js/images/rubyRankIcon.png');
+
+
         this.load.image('battlefield-background','/static/js/images/battlefield-background.png');
         this.load.image('nametag-background','/static/js/images/nametag-background.png');
 
@@ -74,7 +81,7 @@ class MenuScene extends Phaser.Scene {
             findMatchButton.anims.play("findmatch-button-idle");
         });
 
-
+        console.log(playerRating);
         
 
         this.anims.create({

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_required, login_user, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -83,6 +83,24 @@ def log_in():
             flash("Incorrect login information")
             return redirect(url_for('log_in', _external=True))
     return render_template("log_in.html", template_form=log_in_form)
+
+
+@app.route("/update_rating", methods=["POST"])
+@login_required
+def update_rating():
+    print("worked")
+    data = request.get_json()
+    user = User.query.filter_by(username=data['username']).first()
+    if current_user.username == user.username:
+        user.rating = data['rating']
+    else:
+        return jsonify({"Unauthorized"}), 404
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    db.session.commit()
+    return jsonify({"message": "Score updated"}), 200
+
 
 @app.route('/logout', methods=["GET","POST"])
 @login_required

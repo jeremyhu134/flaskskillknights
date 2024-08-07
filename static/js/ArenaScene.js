@@ -1,4 +1,4 @@
-const socket = io('https://skillknightsserver-0ea7833ce71b.herokuapp.com/');
+const socket = io(`${ioURL}`);
 
 
 class MatchScene extends Phaser.Scene {
@@ -75,7 +75,7 @@ class ArenaScene extends Phaser.Scene {
         gameState.platforms.create(500,250,'platform1').setOrigin(0,0).refreshBody();
         gameState.platforms.create(850,425,'platform1').setOrigin(0,0).refreshBody();
         
-        
+        //Player Profile Info
         scene.add.text(10, 65, `${playerUsername}`, {
             fontFamily: 'Arial',
             fontSize: '30px',
@@ -84,6 +84,18 @@ class ArenaScene extends Phaser.Scene {
             stroke: '#000000', 
             strokeThickness: 3 
         });
+        if(playerRating <= 10){
+            this.add.sprite(410, 60,'bronzeRankIcon').setOrigin(0,0).setDepth(1);
+        }else if(playerRating <= 20){
+            this.add.sprite(410, 60,'silverRankIcon').setOrigin(0,0).setDepth(1);
+        }else if(playerRating <= 30){
+            this.add.sprite(410, 60,'goldRankIcon').setOrigin(0,0).setDepth(1);
+        }else if(playerRating <= 40){
+            this.add.sprite(410, 60,'diamondRankIcon').setOrigin(0,0).setDepth(1);
+        }else if(playerRating > 40){
+            this.add.sprite(410, 60,'rubyRankIcon').setOrigin(0,0).setDepth(1);
+        }
+
 
         socket.emit("enemyName",playerUsername);
         
@@ -211,7 +223,6 @@ class ArenaScene extends Phaser.Scene {
     
             socket.on("takeDamage",(dmg)=>{
                 gameState.playerStats.health -= Number(dmg);
-                console.log(dmg);
             });
     
     
@@ -232,6 +243,31 @@ class ArenaScene extends Phaser.Scene {
                 scene.time.addEvent({
                     delay: 3000,
                     callback: ()=>{
+                        if(playerRating < 50){
+                            playerRating++;
+                        }
+                        fetch('/update_rating', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ username: playerUsername, rating: playerRating })
+                          })
+                            .then(response => {
+                              if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                              }
+                              return response.json();
+                            })
+                            .then(data => {
+                              console.log(data.message);
+                              // Handle successful update of rating
+                            })
+                            .catch(error => {
+                              console.error('Error:', error);
+                              // Display user-friendly error message
+                            });
+                        
                         gameState.playerStats.resetStats();
                         scene.scene.start("MenuScene");
                     },
